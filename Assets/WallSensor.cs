@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class WallSensor : MonoBehaviour
 {
@@ -7,7 +9,7 @@ public class WallSensor : MonoBehaviour
     // Use triggers so the sensors don't physically "push" the wall
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.CompareTag("Wall"))
+        if (collision.CompareTag("Wall") || collision.CompareTag("Block"))
         {
             IsTouchingWall = true;
         }
@@ -15,7 +17,7 @@ public class WallSensor : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.CompareTag("Wall"))
+        if (collision.CompareTag("Wall") || collision.CompareTag("Block"))
         {
             IsTouchingWall = false;
         }

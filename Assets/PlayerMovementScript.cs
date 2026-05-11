@@ -21,12 +21,14 @@ public class Player_State_Manager : MonoBehaviour
 
     public WallSensor WallColliderL;
     public WallSensor WallColliderR;
+    public WallSensor WallColliderT;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         WallColliderL = transform.GetChild(0).GetComponent<WallSensor>();
         WallColliderR = transform.GetChild(1).GetComponent<WallSensor>();
+        WallColliderT = transform.GetChild(2).GetComponent<WallSensor>();
     }
 
     void Update()
@@ -51,17 +53,22 @@ public class Player_State_Manager : MonoBehaviour
         else if (WallColliderR.IsTouchingWall && horizontalInput > 0)
         {
             currentState = PlayerState.Climbing;
+            print("left collide");
         }
         else if (currentState == PlayerState.Climbing && !isPushingIntoWall)
         {
             // If we stop pushing or leave the wall, we fall
             currentState = PlayerState.Jumping;
+            print("right collide");
         }
 
         // 4. Handle Jumping from Normal state
         if (Input.GetKeyDown(KeyCode.W) && currentState == PlayerState.Normal)
         {
             jumpRequested = true;
+        }
+        if (WallColliderT.IsTouchingWall) {
+            print("YOU DIED!!!");
         }
     }
 
@@ -125,7 +132,7 @@ public class Player_State_Manager : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Block"))
         {
             currentState = PlayerState.Normal;
         }

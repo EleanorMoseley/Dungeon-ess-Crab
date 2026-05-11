@@ -188,6 +188,7 @@ MonoBehaviour:
   gravityScale: 3
   WallColliderL: {fileID: 0}
   WallColliderR: {fileID: 0}
+  WallColliderT: {fileID: 0}
 --- !u!1 &5354533601135454915
 GameObject:
   m_ObjectHideFlags: 0
