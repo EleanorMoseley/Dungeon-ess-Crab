@@ -34,7 +34,7 @@ public class Player_State_Manager : MonoBehaviour
     void Update()
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer | wallLayer);
 
         isTouchingWall = false;
         if (horizontalInput != 0)
