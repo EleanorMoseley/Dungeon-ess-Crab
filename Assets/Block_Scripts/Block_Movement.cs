@@ -9,7 +9,7 @@ public class Block_Movement : MonoBehaviour
     }
     private Rigidbody2D rb;
 
-　　void Awake() {
+    void Awake() {
         rb = GetComponent<Rigidbody2D>();
 
         if (rb == null) {
