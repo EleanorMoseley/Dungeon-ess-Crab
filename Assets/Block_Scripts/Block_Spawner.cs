@@ -17,7 +17,8 @@ public class Block_Spawner : MonoBehaviour
         }
         // GameObject block = GameObject.Instantiate(blockPrefab, this.transform);
         GameObject block = GameObject.Instantiate(blocks[Random.Range(0, blocks.Length)], this.transform);
-        block.transform.position = new Vector2(index * width / numBlocks * this.transform.localScale.x - this.transform.localScale.x * width / 2, 0);
+        block.transform.SetParent(null, true); // unparent the block so it doesn't move with the spawner 
+        block.transform.position = new Vector2(index * width / numBlocks * this.transform.localScale.x - this.transform.localScale.x * width / 2, this.transform.position.y);
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
