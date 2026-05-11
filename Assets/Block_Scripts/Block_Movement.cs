@@ -8,20 +8,25 @@ public class Block_Movement : MonoBehaviour
         Stopped
     }
     private Rigidbody2D rb;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start(){
+
+　　void Awake() {
         rb = GetComponent<Rigidbody2D>();
-        // for (int i = 0; i < numBlocks; i++)
-        // {
-        //     GameObject block = GameObject.Instantiate(prefab, this.transform);
-        //     block.transform.position = new Vector2(i * width / numBlocks, 0);
-        //     block.transform.localScale = new Vector2(width / numBlocks, width / numBlocks);
-        // }
+
+        if (rb == null) {
+            Debug.LogError("[Block_Movement] No Rigidbody2D found in children of " + gameObject.name);
+        }
     }
+
     void OnCollisionEnter2D(Collision2D other) {
-        if (other.gameObject.CompareTag("Block") || other.gameObject.CompareTag("Ground")) {
+        if (other.gameObject.CompareTag("Player")) {
+            return;
+            // TODO: Kill the player instead.
+        }
+
+        if (other.gameObject.CompareTag("Ground")) {
+            gameObject.tag = "Ground";
             rb.linearVelocity = Vector2.zero;
-            rb.bodyType = RigidbodyType2D.Static;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
     }
     // Update is called once per frame
