@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6418987235432357077}
   - component: {fileID: 9010885892896144132}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: DefaultCollider
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 2233881562459972303}
   - component: {fileID: 6851707555934629851}
   - component: {fileID: 8214057761896024450}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Block
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -162,7 +162,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5301726365684547746}
   - component: {fileID: 7469878569021917532}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sprite
   m_TagString: Block
   m_Icon: {fileID: 0}

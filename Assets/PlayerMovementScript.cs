@@ -15,6 +15,8 @@ public class Player_State_Manager : MonoBehaviour
     public float wallCheckDistance = 0.5f;
     public Transform groundCheck;
 
+    private Collider2D col;
+
     private bool isClimbing = false;
     private bool isGrounded = false;
     private bool isTouchingWall = false;
@@ -26,19 +28,30 @@ public class Player_State_Manager : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
     }
 
     void Update()
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
-
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
         isTouchingWall = false;
         if (horizontalInput != 0)
         {
             Vector2 dir = horizontalInput < 0 ? Vector2.left : Vector2.right;
-            isTouchingWall = Physics2D.Raycast(transform.position, dir, wallCheckDistance, wallLayer);
+            Bounds bounds = col.bounds;
+            Vector2 boxSize = new Vector2(0.05f, bounds.size.y * 0.9f); // thin box, almost full height
+            Vector2 origin = bounds.center;
+
+            RaycastHit2D hit = Physics2D.BoxCast(origin, boxSize, 0f, dir, wallCheckDistance, wallLayer);
+
+            if (!hit)
+            {
+                hit = Physics2D.BoxCast(origin, boxSize, 0f, dir, wallCheckDistance, groundLayer);
+            }
+
+            isTouchingWall = hit && (hit.collider.CompareTag("Block") || ((1 << hit.collider.gameObject.layer) & wallLayer) != 0);
         }
 
         isClimbing = isTouchingWall && horizontalInput != 0;
@@ -86,16 +99,26 @@ public class Player_State_Manager : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        // Ground check sphere
         if (groundCheck != null)
         {
             Gizmos.color = isGrounded ? Color.green : Color.red;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
 
-        // Wall raycasts — show both directions so you can see reach
-        Gizmos.color = isTouchingWall ? Color.green : Color.yellow;
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.left * wallCheckDistance);
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.right * wallCheckDistance);
+        if (col != null)
+        {
+            Bounds bounds = col.bounds;
+            Vector2 boxSize = new Vector2(0.05f, bounds.size.y * 0.9f);
+
+            Gizmos.color = isTouchingWall ? Color.green : Color.yellow;
+
+            // Left check
+            Vector3 leftCenter = bounds.center + Vector3.left * wallCheckDistance;
+            Gizmos.DrawWireCube(leftCenter, boxSize);
+
+            // Right check
+            Vector3 rightCenter = bounds.center + Vector3.right * wallCheckDistance;
+            Gizmos.DrawWireCube(rightCenter, boxSize);
+        }
     }
 }

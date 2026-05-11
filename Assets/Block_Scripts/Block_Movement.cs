@@ -24,7 +24,6 @@ public class Block_Movement : MonoBehaviour
         }
 
         if (other.gameObject.CompareTag("Ground")) {
-            gameObject.tag = "Ground";
             gameObject.layer = 6;   // this is the ground layer. You can also pass a string. "GroundLayer"
             Transform[] children = this.GetComponentsInChildren<Transform>(true);
             foreach (var child in children)
