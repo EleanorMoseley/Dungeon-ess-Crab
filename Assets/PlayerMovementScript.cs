@@ -41,7 +41,7 @@ public class Player_State_Manager : MonoBehaviour
         {
             Vector2 dir = horizontalInput < 0 ? Vector2.left : Vector2.right;
             Bounds bounds = col.bounds;
-            Vector2 boxSize = new Vector2(0.05f, bounds.size.y * 0.9f); // thin box, almost full height
+            Vector2 boxSize = new Vector2(0.05f, bounds.size.y * 1f); // thin box, almost full height
             Vector2 origin = bounds.center;
 
             RaycastHit2D hit = Physics2D.BoxCast(origin, boxSize, 0f, dir, wallCheckDistance, wallLayer);
