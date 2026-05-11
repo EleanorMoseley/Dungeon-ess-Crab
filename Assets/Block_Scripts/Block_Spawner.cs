@@ -1,33 +1,45 @@
 using UnityEngine;
+using System.Collections;
+
 
 public class Block_Spawner : MonoBehaviour
 {
     public float width = 8; 
     private int numBlocks = 8; 
     public GameObject blockPrefab;
-    public Component[] spawnPositions; 
+    public GameObject[] blocks;
 
 
-
+    void SpawnBlockAtIndex(int index) {
+        if (index < 0 || index >= numBlocks) {
+            Debug.LogError("Index out of bounds in SpawnBlockAtIndex: " + index);
+            return;
+        }
+        // GameObject block = GameObject.Instantiate(blockPrefab, this.transform);
+        GameObject block = GameObject.Instantiate(blocks[Random.Range(0, blocks.Length)], this.transform);
+        block.transform.position = new Vector2(index * width / numBlocks * this.transform.localScale.x - this.transform.localScale.x * width / 2, 0);
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        for (int i = 1; i < numBlocks+1 ; i++)
-        {
-            if (i == 4 ){
-                continue; // Skip the middle block
-            }
-            GameObject block = GameObject.Instantiate(blockPrefab, this.transform);
-            block.transform.position = new Vector2(i* width/numBlocks*this.transform.localScale.x - this.transform.localScale.x*width/2 , 0);
-            // block.transform.localScale = new Vector2(width / numBlocks, width / numBlocks);
+        StartCoroutine(SpawnRoutine());
+    }
 
+    IEnumerator SpawnRoutine()
+    {
+        while (true)
+        {
+            // Wait for a random time between 1 and 3 seconds
+            float delay = Random.Range(1f, 3f);
+            yield return new WaitForSeconds(delay);
+
+            SpawnBlockAtIndex(Random.Range(0, numBlocks));
         }
     }
+
 
     // Update is called once per frame
     void Update()
     {
     }
-    // spawnPositions = GetComponentsInChildren<Transform>(); 
-
 }
