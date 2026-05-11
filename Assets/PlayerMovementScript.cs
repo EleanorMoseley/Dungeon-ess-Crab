@@ -1,144 +1,101 @@
-using System;
-using UnityEngine;
-using System.Collections.Generic;
 
-public enum PlayerState { Normal, Jumping, Climbing }
+using UnityEngine;
 
 public class Player_State_Manager : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 8f;
     public float jumpForce = 12f;
-    public float acceleration = 50f; // how fast you reach max speed
-    public float groundDeceleration = 40f; // friction
-    public float gravityScale = 3f; // custom gravity strength
+    public float gravityScale = 3f;
 
-    private PlayerState currentState = PlayerState.Normal;
+    [Header("Detection")]
+    public LayerMask groundLayer;
+    public LayerMask wallLayer;
+    public float groundCheckRadius = 0.1f;
+    public float wallCheckDistance = 0.5f;
+    public Transform groundCheck;
+
+    private bool isClimbing = false;
+    private bool isGrounded = false;
+    private bool isTouchingWall = false;
     private Rigidbody2D rb;
     private Vector2 velocity;
     private float horizontalInput;
     private bool jumpRequested;
 
-    public WallSensor WallColliderL;
-    public WallSensor WallColliderR;
-    public WallSensor WallColliderT;
-
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        WallColliderL = transform.GetChild(0).GetComponent<WallSensor>();
-        WallColliderR = transform.GetChild(1).GetComponent<WallSensor>();
-        WallColliderT = transform.GetChild(2).GetComponent<WallSensor>();
     }
 
     void Update()
     {
-        // 1. Get Input
         horizontalInput = Input.GetAxisRaw("Horizontal");
 
-        // 2. Enable/Disable Sensors based on direction
-        // We disable both if there is no horizontal input
-        WallColliderL.gameObject.SetActive(horizontalInput < 0);
-        WallColliderR.gameObject.SetActive(horizontalInput > 0);
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
-        // 3. Check if the ACTIVE sensor is touching a wall
-        // Since only one can be active at a time, we check both; 
-        // the inactive one will always return false.
-        bool isPushingIntoWall = WallColliderL.IsTouchingWall || WallColliderR.IsTouchingWall;
-
-        if (WallColliderL.IsTouchingWall && horizontalInput < 0)
+        isTouchingWall = false;
+        if (horizontalInput != 0)
         {
-            currentState = PlayerState.Climbing;
-        }
-        else if (WallColliderR.IsTouchingWall && horizontalInput > 0)
-        {
-            currentState = PlayerState.Climbing;
-            print("left collide");
-        }
-        else if (currentState == PlayerState.Climbing && !isPushingIntoWall)
-        {
-            // If we stop pushing or leave the wall, we fall
-            currentState = PlayerState.Jumping;
-            print("right collide");
+            Vector2 dir = horizontalInput < 0 ? Vector2.left : Vector2.right;
+            isTouchingWall = Physics2D.Raycast(transform.position, dir, wallCheckDistance, wallLayer);
         }
 
-        // 4. Handle Jumping from Normal state
-        if (Input.GetKeyDown(KeyCode.W) && currentState == PlayerState.Normal)
+        isClimbing = isTouchingWall && horizontalInput != 0;
+
+        if (Input.GetKeyDown(KeyCode.W) && isGrounded && !isClimbing)
         {
             jumpRequested = true;
         }
-        if (WallColliderT.IsTouchingWall) {
-            print("YOU DIED!!!");
-        }
+
+        DebugLog();
     }
 
     void FixedUpdate()
     {
-        // Read current velocity from physics engine
         velocity = rb.linearVelocity;
 
-        switch (currentState)
+        if (isClimbing)
         {
-            case PlayerState.Normal:
-                ApplyMovement();
-                ApplyGravity();
-                break;
-            case PlayerState.Jumping:
-                ApplyMovement();
-                ApplyGravity();
-                break;
-            case PlayerState.Climbing:
-                ClimbUpdatePhysics();
-                break;
-        }
-
-        // 2. Apply calculated velocity back to Rigidbody
-        rb.linearVelocity = velocity;
-    }
-
-    void ApplyMovement()
-    {
-        if (horizontalInput != 0)
-        {
-            // Accelerate towards move speed
-            velocity.x = Mathf.MoveTowards(velocity.x, horizontalInput * moveSpeed, acceleration * Time.fixedDeltaTime);
+            velocity.y = Input.GetAxisRaw("Vertical") * (moveSpeed / 2);
+            velocity.x = 0;
         }
         else
         {
-            // Apply friction/slow down
-            velocity.x = Mathf.MoveTowards(velocity.x, 0, groundDeceleration * Time.fixedDeltaTime);
+            velocity.x = horizontalInput * moveSpeed;
+
+            if (jumpRequested)
+            {
+                velocity.y = jumpForce;
+                jumpRequested = false;
+            }
+
+            velocity.y += Physics2D.gravity.y * gravityScale * Time.fixedDeltaTime;
         }
 
-        if (jumpRequested)
+        rb.linearVelocity = velocity;
+    }
+
+    void DebugLog()
+    {
+        if (Input.GetKeyDown(KeyCode.W))
         {
-            velocity.y = jumpForce;
-            currentState = PlayerState.Jumping;
-            jumpRequested = false;
+            Debug.Log($"[Jump Attempt] isGrounded={isGrounded} | isClimbing={isClimbing} | groundCheck.pos={groundCheck.position} | radius={groundCheckRadius} | layerMask={groundLayer.value}");
         }
     }
 
-    void ApplyGravity()
+    void OnDrawGizmosSelected()
     {
-        // Simple manual gravity
-        velocity.y += Physics2D.gravity.y * gravityScale * Time.fixedDeltaTime;
-    }
-
-    void ClimbUpdatePhysics()
-    {
-        // Zero out gravity while climbing
-        velocity.y = Input.GetAxisRaw("Vertical") * (moveSpeed / 2);
-        velocity.x = 0;
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Block"))
+        // Ground check sphere
+        if (groundCheck != null)
         {
-            currentState = PlayerState.Normal;
+            Gizmos.color = isGrounded ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
-        //else if (collision.gameObject.CompareTag("Wall"))
-        //{
-        //    currentState = PlayerState.Climbing;
-        //}
+
+        // Wall raycasts — show both directions so you can see reach
+        Gizmos.color = isTouchingWall ? Color.green : Color.yellow;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.left * wallCheckDistance);
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.right * wallCheckDistance);
     }
 }
