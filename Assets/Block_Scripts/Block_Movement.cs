@@ -18,10 +18,10 @@ public class Block_Movement : MonoBehaviour
     }
 
     void OnCollisionEnter2D(Collision2D other) {
-        if (other.gameObject.CompareTag("Player")) {
-            return;
-            // TODO: Kill the player instead.
-        }
+        // if (other.gameObject.CompareTag("Player")) {
+        //     return;
+        //     // TODO: Kill the player instead.
+        // }
 
         if (other.gameObject.CompareTag("Ground")) {
             gameObject.layer = 6;   // this is the ground layer. You can also pass a string. "GroundLayer"
@@ -31,7 +31,9 @@ public class Block_Movement : MonoBehaviour
                 child.gameObject.layer = 6;
             }
             rb.linearVelocity = Vector2.zero;
-            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            rb.bodyType = RigidbodyType2D.Static;
+
+            // rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
     }
     // Update is called once per frame

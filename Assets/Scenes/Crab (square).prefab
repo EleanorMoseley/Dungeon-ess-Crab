@@ -183,12 +183,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   moveSpeed: 8
   jumpForce: 12
-  acceleration: 50
-  groundDeceleration: 40
   gravityScale: 3
-  WallColliderL: {fileID: 0}
-  WallColliderR: {fileID: 0}
-  WallColliderT: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckRadius: 0.1
+  wallCheckDistance: 0.5
+  groundCheck: {fileID: 0}
 --- !u!1 &5354533601135454915
 GameObject:
   m_ObjectHideFlags: 0

@@ -595,7 +595,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   width: 8
   blockPrefab: {fileID: 4894981888245066684, guid: 6a43690c8ce2e45338db2a558380bfe6, type: 3}
-  spawnPositions: []
+  blocks:
+  - {fileID: 6799238686821873246, guid: ff5cabcfba6ea41eeb20127c24eefc92, type: 3}
+  - {fileID: 6799238686821873246, guid: 4798793041a50415a811c9234faf3d51, type: 3}
+  - {fileID: 6799238686821873246, guid: 29f11332134e645ffa59cb9cc6e526ac, type: 3}
 --- !u!114 &508096935
 MonoBehaviour:
   m_ObjectHideFlags: 0
