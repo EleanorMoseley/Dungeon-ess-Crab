@@ -21,4 +21,9 @@ public class LevelManager : MonoBehaviour
     {
         SceneManager.LoadScene(level);
     }
+    public void StartGame() 
+    {
+        SceneManager.LoadScene("Main Scene"); 
+    }
+
 }
